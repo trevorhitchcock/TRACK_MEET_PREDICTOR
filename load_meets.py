@@ -1,5 +1,21 @@
 import os
+import sqlite3
+
 from bs4 import BeautifulSoup
+
+def insert_meet_into_db(meet_name, meet_link, meet_year, meet_outdoor):
+    conn = sqlite3.connect('track_meet_simulator.db')
+    cursor = conn.cursor()
+
+    # Insert the meet data into the 'meets' table
+    cursor.execute('''
+        INSERT INTO meets (name, link, year, outdoor)
+        VALUES (?, ?, ?, ?)
+    ''', (meet_name, meet_link, meet_year, meet_outdoor))
+
+    conn.commit()
+    conn.close()
+
 
 def load_meets():
     
@@ -35,22 +51,24 @@ def load_meets():
                     meet_link = meet_anchor['href']
 
                     # extracts date (in the second <td>)
-                    meet_date = tds[1].get_text().strip()
+                    meet_date_str = tds[1].get_text().strip()
+
+                    meet_year = int(meet_date_str.split('/')[-1])
+
+                    meet_outdoor = True
+
+                    if 'indoor' in meet_name.lower():
+                        meet_outdoor = False
 
                     # stores info
                     meet_info = {
                         'name': meet_name,
                         'link': meet_link,
-                        'date': meet_date
+                        'date': meet_year,
+                        'outdoor' : meet_outdoor
                     }
-
-                    meets.append(meet_info)
-
-        for meet in meets:
-            print(meet, '\n')
-
-def main():
-    load_meets()
-
-if __name__ == "__main__":
-    main()
+                    
+                    insert_meet_into_db(meet_name, meet_link, meet_year, meet_outdoor)
+    print('done')
+                    
+load_meets()
