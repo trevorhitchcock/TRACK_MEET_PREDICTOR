@@ -30,9 +30,6 @@ def load_meets():
         
         # finds the tbody element by its id
         tbody = tffrs_soup.find('tbody', {'id': 'body'})
-        
-        # list to store data of all meets
-        meets = []
 
         for row in tbody.find_all('tr'):
             # gets all <td> elements in the row
@@ -59,16 +56,8 @@ def load_meets():
 
                     if 'indoor' in meet_name.lower():
                         meet_outdoor = False
-
-                    # stores info
-                    meet_info = {
-                        'name': meet_name,
-                        'link': meet_link,
-                        'date': meet_year,
-                        'outdoor' : meet_outdoor
-                    }
                     
                     insert_meet_into_db(meet_name, meet_link, meet_year, meet_outdoor)
-    print('done')
+    print('Done')
                     
 load_meets()
